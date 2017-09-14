@@ -34,7 +34,9 @@ stage('Static Analysis') {
     node {
         unstash 'source'
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            sh "mvn sonar:sonar"
+            withSonarQubeEnv('sonar'){
+                sh "mvn sonar:sonar"
+            }
         }
     }
 }
