@@ -17,6 +17,7 @@ stage('Unit Tests') {
         unstash 'source'
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             sh "mvn -B clean test"
+            stash name: "unit_tests", includes: "surefire-reports/"
         }
     }
 }
@@ -25,7 +26,8 @@ stage('Integration Tests') {
     node {
         unstash 'source'
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            sh "mvn -B clean test"
+            sh "mvn -B clean verify -Dsurefire.skip=true"
+            stash name: 'it_tests', includes: 'failsafe-reports/'
         }
     }
 }
@@ -35,7 +37,9 @@ stage('Static Analysis') {
         unstash 'source'
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             withSonarQubeEnv('sonar'){
-                sh "mvn sonar:sonar"
+                unstash 'it_tests'
+                unstash 'unit_tests'
+                sh 'mvn sonar:sonar -DskipTests'
             }
         }
     }
