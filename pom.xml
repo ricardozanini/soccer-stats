@@ -57,6 +57,10 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+			</plugin>
 			<!-- IT -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

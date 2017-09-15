@@ -5,6 +5,8 @@ stage('Build') {
     node {
         git gitUrl
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            def pom = readMavenPom file: 'pom.xml'
+            sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
             sh "mvn -B -Dmaven.test.skip=true clean install"
             stash name: "artifact", includes: "target/soccer-stats-*.jar"
             stash name: "source", includes: "**", excludes: "target/"
