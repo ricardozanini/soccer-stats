@@ -1,5 +1,6 @@
 #!groovy​
 def gitUrl = 'https://github.com/ricardozanini/soccer-stats.git'
+def nexusUrl = 'nexus.local:8081'
 
 stage('Build') {
     node {
@@ -49,7 +50,25 @@ stage('Static Analysis') {
 
 stage('Artifact Upload') {
     node {
+        unstash 'source'
         unstash 'artifact'
+        def pom = readMavenPom 'pom.xml'
+        def file = "${pom.artifactId}-${pom.version}.jar"
+        nexusArtifactUploader {
+            credentialsId('nexus')
+            groupId("${pom.groupId}")
+            nexusUrl("${nexusUrl}")
+            nexusVersion('nexus3')
+            protocol('http')
+            repository('ansible-meetup')
+            version("${pom.version}")
+            artifact {
+                artifactId("${pom.artifactId}")
+                classifier('')
+                file("target/${file}") 
+                type('jar')
+            }
+        }
     }
 }
 
