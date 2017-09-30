@@ -53,21 +53,20 @@ stage('Artifact Upload') {
         unstash 'source'
         unstash 'artifact'
         def pom = readMavenPom file: 'pom.xml'
-        def file = "${pom.artifactId}-${pom.version}.jar"
-        nexusArtifactUploader {
-            credentialsId('nexus')
-            groupId("${pom.groupId}")
-            nexusUrl("${nexusUrl}")
-            nexusVersion('nexus3')
-            protocol('http')
-            repository('ansible-meetup')
-            version("${pom.version}")
-            artifact {
-                artifactId("${pom.artifactId}")
-                classifier('')
-                file("target/${file}") 
-                type('jar')
-            }
+        def file = "${pom.artifactId}-${pom.version}"
+
+
+        nexusArtifactUploader artifacts: [
+                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar'],
+                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
+            ], 
+            credentialsId: 'nexus', 
+            groupId: "${pom.groupId}", 
+            nexusUrl: "${nexusUrl}", 
+            nexusVersion: 'nexus3', 
+            protocol: 'http', 
+            repository: 'ansible-meetup', 
+            version: "${pom.version}"
         }
     }
 }
