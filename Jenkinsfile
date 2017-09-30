@@ -53,10 +53,9 @@ stage('Static Analysis') {
 stage('Artifact Upload') {
     node {
         unstash 'source'
-            unstash 'artifact'
+        unstash 'artifact'
         def pom = readMavenPom file: 'pom.xml'
         def file = "target/${pom.artifactId}-${pom.version}"
-
 
         nexusArtifactUploader artifacts: [
                 [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar']
