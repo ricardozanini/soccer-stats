@@ -67,7 +67,6 @@ stage('Artifact Upload') {
             protocol: 'http', 
             repository: 'ansible-meetup', 
             version: "${pom.version}"
-        }
     }
 }
 
