@@ -52,7 +52,7 @@ stage('Artifact Upload') {
     node {
         unstash 'source'
         unstash 'artifact'
-        def pom = readMavenPom 'pom.xml'
+        def pom = readMavenPom file: 'pom.xml'
         def file = "${pom.artifactId}-${pom.version}.jar"
         nexusArtifactUploader {
             credentialsId('nexus')
@@ -80,6 +80,12 @@ stage('Approval') {
 
 stage('Deploy') {
     node {
-
+        ansiblePlaybook colorized: true, 
+        credentialsId: 'nexus', 
+        installation: 'ansible', 
+        inventory: 'provision/inventori.ini', 
+        playbook: 'provision/playbook.yml', 
+        sudo: true,
+        sudoUser: 'jenkins'
     }
 }
