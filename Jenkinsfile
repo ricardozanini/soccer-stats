@@ -15,6 +15,7 @@ stage('Build') {
     }
 }
 
+/*
 stage('Unit Tests') {
     node {
         unstash 'source'
@@ -47,18 +48,18 @@ stage('Static Analysis') {
         }
     }
 }
+*/
 
 stage('Artifact Upload') {
     node {
         unstash 'source'
         unstash 'artifact'
         def pom = readMavenPom file: 'pom.xml'
-        def file = "${pom.artifactId}-${pom.version}"
+        def file = "target/${pom.artifactId}-${pom.version}"
 
 
         nexusArtifactUploader artifacts: [
-                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar'],
-                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
+                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar']
             ], 
             credentialsId: 'nexus', 
             groupId: "${pom.groupId}", 
@@ -70,11 +71,13 @@ stage('Artifact Upload') {
     }
 }
 
+/*
 stage('Approval') {
     timeout(time:3, unit:'DAYS') {
         input 'Do I have your approval for deployment?'
     }
 }
+*/
 
 stage('Deploy') {
     node {
