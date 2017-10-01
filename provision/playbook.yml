@@ -1,6 +1,7 @@
 ---
 - name: Install Java
-  remote_user: jenkins
+  hosts: app_server
+  remote_user: vagrant
   become: yes
 
   roles:
