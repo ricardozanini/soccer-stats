@@ -1,7 +1,9 @@
 ---
 - name: Install Java
   hosts: app_server
-  sudo: yes
+  remote_user: jenkins
+  become: yes
+
 
   roles:
     - geerlingguy.java
