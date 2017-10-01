@@ -3,15 +3,15 @@
   hosts: app_server
   become: yes
   become_user: root
-
   roles:
     - geerlingguy.java
 
 - name: Download Application from Repo
   hosts: app_server
-  get_url:
-    url: '{{ ARTIFACT_URL }}'
-    dest: '/tmp/{{ APP_NAME }}'
+  tasks:
+    - get_url:
+        url: '{{ ARTIFACT_URL }}'
+        dest: '/tmp/{{ APP_NAME }}'
 
 - name: Setup Spring Boot
   hosts: app_server
