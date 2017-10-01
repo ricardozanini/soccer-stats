@@ -12,7 +12,7 @@
     - debug: msg="{{ lookup('env','ARTIFACT_URL') }}"
     - get_url:
         url: "{{ lookup('env','ARTIFACT_URL') }}"
-        dest: "/tmp/{{ lookup('env','APP_NAME') }}"
+        dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
 
 - name: Setup Spring Boot
   hosts: app_server
@@ -21,5 +21,5 @@
 
   roles: 
     - { role: pellepelster.springboot-role,
-        spring_boot_file_source_local: "/tmp/{{ lookup('env','APP_NAME') }}"
+        spring_boot_file_source_local: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
     } 
