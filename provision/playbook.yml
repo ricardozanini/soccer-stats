@@ -21,5 +21,6 @@
 
   roles: 
     - { role: pellepelster.springboot-role,
-        spring_boot_file_source_local: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
+        spring_boot_file_source_local: "/tmp/{{ lookup('env','APP_NAME') }}.jar",
+        spring_boot_application_id: "{{ lookup('env','APP_NAME') }}"
     } 
