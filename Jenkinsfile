@@ -90,7 +90,7 @@ stage('Deploy') {
                         "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
         def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}"
 
-        withEnv(["ARTIFACT_URL=${artifactUrl}, APP_NAME=${pom.artifactId}"]) {
+        withEnv(["ARTIFACT_URL=${artifactUrl}", "APP_NAME=${pom.artifactId}"]) {
             echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
 
             // install galaxy roles

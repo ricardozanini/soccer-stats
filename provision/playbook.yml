@@ -10,8 +10,8 @@
 - name: Download Application from Repo
   hosts: app_server
   get_url:
-    url: {{ ARTIFACT_URL }}
-    dest: "/tmp/{{ APP_NAME }}"
+    url: '{{ ARTIFACT_URL }}'
+    dest: '/tmp/{{ APP_NAME }}'
 
 - name: Setup Spring Boot
   hosts: app_server
@@ -20,5 +20,5 @@
 
   roles: 
     - { role: pellepelster.springboot-role,
-        spring_boot_file_source_local: "/tmp/{{ APP_NAME }}"
+        spring_boot_file_source_local: '/tmp/{{ APP_NAME }}'
     } 
