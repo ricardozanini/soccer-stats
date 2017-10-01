@@ -90,7 +90,7 @@ stage('Deploy') {
     node {
         unstash 'artifact'
 
-        sh "ansible-galaxy install -r provision/requirements.yml"
+        sh "ansible-galaxy install -vvv -r provision/requirements.yml"
 
         ansiblePlaybook colorized: true, 
         credentialsId: 'nexus', 
