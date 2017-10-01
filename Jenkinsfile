@@ -81,7 +81,7 @@ stage('Artifact Upload') {
         }
         */
         nexusArtifactUploader artifacts: [
-                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar'],
+                [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
                 [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
             ], 
             credentialsId: 'nexus', 
@@ -90,9 +90,7 @@ stage('Artifact Upload') {
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'ansible-meetup', 
-            version: "${pom.version}",
-            type: "jar"
-        
+            version: "${pom.version}"        
     }
 }
 
