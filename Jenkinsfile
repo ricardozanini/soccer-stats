@@ -89,7 +89,6 @@ stage('Approval') {
 stage('Deploy') {
     node {
         unstash 'artifact'
-        unstash 'source'
 
         sh "ansible-galaxy install -r provision/requirements.yml"
 
