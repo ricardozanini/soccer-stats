@@ -51,6 +51,7 @@ stage('Static Analysis') {
 }
 */
 
+/*
 stage('Artifact Upload') {
     node {
         unstash 'source'
@@ -75,6 +76,7 @@ stage('Artifact Upload') {
             version: "${pom.version}"        
     }
 }
+*/
 
 /*
 stage('Approval') {
