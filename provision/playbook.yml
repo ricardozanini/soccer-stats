@@ -11,8 +11,8 @@
   tasks:
     - debug: msg="{{ lookup('env','ARTIFACT_URL') }}"
     - get_url:
-        url: '{{ env.ARTIFACT_URL }}'
-        dest: '/tmp/{{ env.APP_NAME }}'
+        url: '{{ lookup('env','ARTIFACT_URL') }}'
+        dest: '/tmp/{{ lookup('env','APP_NAME') }}'
 
 - name: Setup Spring Boot
   hosts: app_server
