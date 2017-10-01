@@ -12,7 +12,7 @@ def nexusUrl = 'nexus.local:8081'
 
 stage('Build') {
     node {
-        git $GIT_URL
+        git env.GIT_URL
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             def pom = readMavenPom file: 'pom.xml'
             sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
@@ -74,7 +74,7 @@ stage('Artifact Upload') {
             ], 
             credentialsId: 'nexus', 
             groupId: "${pom.groupId}", 
-            nexusUrl: "$NEXUS_URL", 
+            nexusUrl: env.NEXUS_URL, 
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'ansible-meetup', 
@@ -92,18 +92,19 @@ stage('Approval') {
 
 stage('Deploy') {
     node {
-        // install galaxy roles
-        sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"
         def pom = readMavenPom file: "pom.xml"
         def repoPath =  "${pom.groupId}".replace(".", "/") + 
                         "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
 
         environment {
-            ARTIFACT_URL = "http://$NEXUS_URL/repository/ansible-meetup/${repoPath}"
+            ARTIFACT_URL = "http://${env.NEXUS_URL}/repository/ansible-meetup/${repoPath}"
             APP_NAME = pom.artifactId
         }
 
-        echo "The URL is $ARTIFACT_URL and the app name is $APP_NAME"
+        echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
+
+        // install galaxy roles
+        sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
 
         ansiblePlaybook colorized: true, 
         credentialsId: 'ssh-jenkins', 
