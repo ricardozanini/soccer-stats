@@ -1,4 +1,0 @@
-- name: "Download Application from Nexus repo"
-  get_url:
-    url: '{{ ARTIFACT_URL }}'
-    dest: '/tmp/{{ APP_NAME }}'
