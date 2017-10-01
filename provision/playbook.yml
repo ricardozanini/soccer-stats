@@ -1,6 +1,7 @@
 ---
 - name: Install Java
   hosts: app_server
+  become: true
 
   roles:
     - geerlingguy.java
