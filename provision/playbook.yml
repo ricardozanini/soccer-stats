@@ -10,6 +10,7 @@
   hosts: app_server
   tasks:
     - get_url:
+        force: yes
         url: "{{ lookup('env','ARTIFACT_URL') }}"
         dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
     - stat:
