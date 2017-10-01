@@ -1,11 +1,18 @@
 #!groovy​
+
+environment {
+    GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
+    NEXUS_URL = 'nexus.local:8081'
+}
+
+/*
 def gitUrl = 'https://github.com/ricardozanini/soccer-stats.git'
-//def nexusUrl = 'http://nexus.local:8081/repository/ansible-meetup'
 def nexusUrl = 'nexus.local:8081'
+*/
 
 stage('Build') {
     node {
-        git gitUrl
+        git $GIT_URL
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             def pom = readMavenPom file: 'pom.xml'
             sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
@@ -54,7 +61,6 @@ stage('Static Analysis') {
 /*
 stage('Artifact Upload') {
     node {
-        unstash 'source'
         unstash 'artifact'
 
         def pom = readMavenPom file: 'pom.xml'
@@ -69,7 +75,7 @@ stage('Artifact Upload') {
             ], 
             credentialsId: 'nexus', 
             groupId: "${pom.groupId}", 
-            nexusUrl: "${nexusUrl}", 
+            nexusUrl: "$NEXUS_URL", 
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'ansible-meetup', 
@@ -88,9 +94,18 @@ stage('Approval') {
 
 stage('Deploy') {
     node {
-        unstash 'artifact'
-
+        // install galaxy roles
         sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"
+        def pom = readMavenPom file: "pom.xml"
+        def repoPath =  "${pom.groupId}".replace(".", "/") + 
+                        "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
+
+        environment {
+            ARTIFACT_URL = "http://$NEXUS_URL/repository/ansible-meetup/${repoPath}"
+            APP_NAME = pom.artifactId
+        }
+
+        echo "The URL is $ARTIFACT_URL and the app name is $APP_NAME"
 
         ansiblePlaybook colorized: true, 
         credentialsId: 'ssh-jenkins', 
