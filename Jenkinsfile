@@ -58,7 +58,9 @@ stage('Artifact Upload') {
         def pom = readMavenPom file: 'pom.xml'
         def file = "${pom.artifactId}-${pom.version}"
         def jar = "target/${file}.jar"
-        def path = "${pom.groupId}".replaceAll(".", "/") + "/${pom.artifactId}/${pom.version}"
+        def path = "${pom.groupId}".replace(".", "/") + "/${pom.artifactId}/${pom.version}"
+
+        echo "The path is ${path}"
 
         withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
             sh "curl -v -u ${user}:${pass} --upload-file pom.xml ${nexusUrl}/${path}/${file}.pom"
