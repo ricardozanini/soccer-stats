@@ -16,14 +16,16 @@ pipeline {
 
         stage('Build') {
             node {
-                echo "the git url is $GIT_URL"
-                git $GIT_URL
-                withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-                    def pom = readMavenPom file: 'pom.xml'
-                    sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
-                    sh "mvn -B -Dmaven.test.skip=true clean package"
-                    stash name: "artifact", includes: "target/soccer-stats-*.jar"
-                    stash name: "source", includes: "**", excludes: "target/"
+                steps {
+                    echo "the git url is $GIT_URL"
+                    git $GIT_URL
+                    withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+                        def pom = readMavenPom file: 'pom.xml'
+                        sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
+                        sh "mvn -B -Dmaven.test.skip=true clean package"
+                        stash name: "artifact", includes: "target/soccer-stats-*.jar"
+                        stash name: "source", includes: "**", excludes: "target/"
+                    }
                 }
             }
         }
@@ -65,25 +67,28 @@ pipeline {
 
         stage('Artifact Upload') {
             node {
-                unstash 'artifact'
+                steps {
+                    unstash 'artifact'
 
-                def pom = readMavenPom file: 'pom.xml'
-                def file = "${pom.artifactId}-${pom.version}"
-                def jar = "target/${file}.jar"
+                    def pom = readMavenPom file: 'pom.xml'
+                    def file = "${pom.artifactId}-${pom.version}"
+                    def jar = "target/${file}.jar"
 
-                sh "cp pom.xml ${file}.pom"
+                    sh "cp pom.xml ${file}.pom"
 
-                nexusArtifactUploader artifacts: [
-                        [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
-                        [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
-                    ], 
-                    credentialsId: 'nexus', 
-                    groupId: "${pom.groupId}", 
-                    nexusUrl: $NEXUS_URL, 
-                    nexusVersion: 'nexus3', 
-                    protocol: 'http', 
-                    repository: 'ansible-meetup', 
-                    version: "${pom.version}"        
+                    nexusArtifactUploader artifacts: [
+                            [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
+                            [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
+                        ], 
+                        credentialsId: 'nexus', 
+                        groupId: "${pom.groupId}", 
+                        nexusUrl: $NEXUS_URL, 
+                        nexusVersion: 'nexus3', 
+                        protocol: 'http', 
+                        repository: 'ansible-meetup', 
+                        version: "${pom.version}"           
+                }
+                
             }
         }
 
@@ -97,27 +102,29 @@ pipeline {
 
         stage('Deploy') {
             node {
-                def pom = readMavenPom file: "pom.xml"
-                def repoPath =  "${pom.groupId}".replace(".", "/") + 
-                                "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
+                steps {
+                    def pom = readMavenPom file: "pom.xml"
+                    def repoPath =  "${pom.groupId}".replace(".", "/") + 
+                                    "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
 
-                environment {
-                    ARTIFACT_URL = "http://${env.NEXUS_URL}/repository/ansible-meetup/${repoPath}"
-                    APP_NAME = pom.artifactId
+                    environment {
+                        ARTIFACT_URL = "http://${env.NEXUS_URL}/repository/ansible-meetup/${repoPath}"
+                        APP_NAME = pom.artifactId
+                    }
+
+                    echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
+
+                    // install galaxy roles
+                    sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
+
+                    ansiblePlaybook colorized: true, 
+                    credentialsId: 'ssh-jenkins', 
+                    installation: 'ansible', 
+                    inventory: 'provision/inventory.ini', 
+                    playbook: 'provision/playbook.yml', 
+                    sudo: true,
+                    sudoUser: 'jenkins'
                 }
-
-                echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
-
-                // install galaxy roles
-                sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
-
-                ansiblePlaybook colorized: true, 
-                credentialsId: 'ssh-jenkins', 
-                installation: 'ansible', 
-                inventory: 'provision/inventory.ini', 
-                playbook: 'provision/playbook.yml', 
-                sudo: true,
-                sudoUser: 'jenkins'
             }
         }
     }
