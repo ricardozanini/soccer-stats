@@ -93,7 +93,7 @@ stage('Deploy') {
         sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"
 
         ansiblePlaybook colorized: true, 
-        credentialsId: 'nexus', 
+        credentialsId: 'ssh-jenkins', 
         installation: 'ansible', 
         inventory: 'provision/inventory.ini', 
         playbook: 'provision/playbook.yml', 
