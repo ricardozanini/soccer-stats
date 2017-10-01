@@ -1,0 +1,7 @@
+---
+- name: Install Java
+  remote_user: jenkins
+  become: yes
+
+  roles:
+    - geerlingguy.java

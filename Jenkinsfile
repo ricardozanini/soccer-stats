@@ -59,27 +59,9 @@ stage('Artifact Upload') {
         def pom = readMavenPom file: 'pom.xml'
         def file = "${pom.artifactId}-${pom.version}"
         def jar = "target/${file}.jar"
-        // def path = "${pom.groupId}".replace(".", "/") + "/${pom.artifactId}/${pom.version}"
-        sh "cp pom.xml ${file}.pom"
-        // echo "The path is ${path}"
 
-        /*
-        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
-            sh "curl -v -u ${user}:${pass} --upload-file pom.xml ${nexusUrl}/${path}/${file}.pom"
-            sh "curl -H 'Content-Type: application/java-archive' -v -u ${user}:${pass} --upload-file ${jar} ${nexusUrl}/${path}/${file}.jar"    
-        }
-        */
-        
-        /*
-        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                sh "mvn deploy:deploy-file -DgroupId=${pom.groupId} " +
-                "-DartifactId=${pom.artifactId} -Dversion=${pom.version} -DgeneratePom=false " +
-                "-Dpackaging=jar -DrepositoryId=nexus -Durl=${nexusUrl} " +
-                "-DpomFile=pom.xml -Dfile=${file}"
-            }
-        }
-        */
+        sh "cp pom.xml ${file}.pom"
+
         nexusArtifactUploader artifacts: [
                 [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
                 [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
@@ -107,7 +89,7 @@ stage('Deploy') {
         ansiblePlaybook colorized: true, 
         credentialsId: 'nexus', 
         installation: 'ansible', 
-        inventory: 'provision/inventori.ini', 
+        inventory: 'provision/inventory.ini', 
         playbook: 'provision/playbook.yml', 
         sudo: true,
         sudoUser: 'jenkins'
