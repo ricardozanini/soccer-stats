@@ -1,7 +1,7 @@
 #!groovy​
 
 environment {
-    GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
+    GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git',
     NEXUS_URL = 'nexus.local:8081'
 }
 
@@ -12,6 +12,7 @@ def nexusUrl = 'nexus.local:8081'
 
 stage('Build') {
     node {
+        echo "the git url is ${env.GIT_URL}"
         git env.GIT_URL
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             def pom = readMavenPom file: 'pom.xml'
