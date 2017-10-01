@@ -1,6 +1,6 @@
 #!groovy​
 def gitUrl = 'https://github.com/ricardozanini/soccer-stats.git'
-def nexusUrl = 'nexus.local:8081'
+def nexusUrl = 'http://nexus.local:8081/repository/ansible-meetup'
 
 stage('Build') {
     node {
@@ -54,9 +54,29 @@ stage('Artifact Upload') {
     node {
         unstash 'source'
         unstash 'artifact'
-        def pom = readMavenPom file: 'pom.xml'
-        def file = "target/${pom.artifactId}-${pom.version}"
 
+        def pom = readMavenPom file: 'pom.xml'
+        def file = "${pom.artifactId}-${pom.version}"
+        def jar = "target/${file}.jar"
+        def path = "${pom.groupId}".replaceAll(".", "/") + "/${pom.artifactId}/${pom.version}"
+
+        withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
+            sh "curl -v -u ${user}:${pass} --upload-file pom.xml ${nexusUrl}/${path}/${file}.pom"
+            sh "curl -v -u ${user}:${pass} --upload-file ${jar} ${nexusUrl}/${path}/${file}.jar"    
+        }
+        
+        /*
+        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                sh "mvn deploy:deploy-file -DgroupId=${pom.groupId} " +
+                "-DartifactId=${pom.artifactId} -Dversion=${pom.version} -DgeneratePom=false " +
+                "-Dpackaging=jar -DrepositoryId=nexus -Durl=${nexusUrl} " +
+                "-DpomFile=pom.xml -Dfile=${file}"
+            }
+        }
+        */
+
+        /*
         nexusArtifactUploader artifacts: [
                 [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar']
             ], 
@@ -66,7 +86,9 @@ stage('Artifact Upload') {
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'ansible-meetup', 
-            version: "${pom.version}"
+            version: "${pom.version}",
+            type: "jar"
+        */
     }
 }
 
