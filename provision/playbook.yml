@@ -2,6 +2,7 @@
 - name: Install Java
   hosts: app_server
   become: true
+  become_user: jenkins
 
   roles:
     - geerlingguy.java
