@@ -5,7 +5,7 @@ final NEXUS_URL = 'nexus.local:8081'
 
 stage('Build') {
     node {
-        git $GIT_URL
+        git GIT_URL
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
             def pom = readMavenPom file: 'pom.xml'
             sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
@@ -67,7 +67,7 @@ stage('Artifact Upload') {
             ], 
             credentialsId: 'nexus', 
             groupId: "${pom.groupId}", 
-            nexusUrl: $NEXUS_URL, 
+            nexusUrl: NEXUS_URL, 
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'ansible-meetup', 
