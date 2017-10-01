@@ -1,8 +1,6 @@
 ---
 - name: Install Java
   hosts: app_server
-  become: yes
-  become_user: vagrant
 
   roles:
     - geerlingguy.java
