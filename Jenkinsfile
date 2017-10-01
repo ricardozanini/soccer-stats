@@ -1,6 +1,7 @@
 #!groovy​
 def gitUrl = 'https://github.com/ricardozanini/soccer-stats.git'
-def nexusUrl = 'http://nexus.local:8081/repository/ansible-meetup'
+//def nexusUrl = 'http://nexus.local:8081/repository/ansible-meetup'
+def nexusUrl = 'nexus.local:8081'
 
 stage('Build') {
     node {
@@ -58,14 +59,16 @@ stage('Artifact Upload') {
         def pom = readMavenPom file: 'pom.xml'
         def file = "${pom.artifactId}-${pom.version}"
         def jar = "target/${file}.jar"
-        def path = "${pom.groupId}".replace(".", "/") + "/${pom.artifactId}/${pom.version}"
+        // def path = "${pom.groupId}".replace(".", "/") + "/${pom.artifactId}/${pom.version}"
+        sh "cp pom.xml ${file}.pom"
+        // echo "The path is ${path}"
 
-        echo "The path is ${path}"
-
+        /*
         withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
             sh "curl -v -u ${user}:${pass} --upload-file pom.xml ${nexusUrl}/${path}/${file}.pom"
             sh "curl -H 'Content-Type: application/java-archive' -v -u ${user}:${pass} --upload-file ${jar} ${nexusUrl}/${path}/${file}.jar"    
         }
+        */
         
         /*
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
@@ -77,10 +80,9 @@ stage('Artifact Upload') {
             }
         }
         */
-
-        /*
         nexusArtifactUploader artifacts: [
-                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar']
+                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.jar", type: 'jar'],
+                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
             ], 
             credentialsId: 'nexus', 
             groupId: "${pom.groupId}", 
@@ -90,7 +92,7 @@ stage('Artifact Upload') {
             repository: 'ansible-meetup', 
             version: "${pom.version}",
             type: "jar"
-        */
+        
     }
 }
 
