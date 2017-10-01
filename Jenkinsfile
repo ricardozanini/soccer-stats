@@ -64,7 +64,7 @@ stage('Artifact Upload') {
 
         withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'pass', usernameVariable: 'user')]) {
             sh "curl -v -u ${user}:${pass} --upload-file pom.xml ${nexusUrl}/${path}/${file}.pom"
-            sh "curl -v -u ${user}:${pass} --upload-file ${jar} ${nexusUrl}/${path}/${file}.jar"    
+            sh "curl -H 'Content-Type: application/java-archive' -v -u ${user}:${pass} --upload-file ${jar} ${nexusUrl}/${path}/${file}.jar"    
         }
         
         /*
