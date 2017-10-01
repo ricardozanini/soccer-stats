@@ -15,7 +15,7 @@
         dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
     - stat:
         path: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
-    - register: stat_result
+        register: jar_exists
 
 - name: Setup Spring Boot
   hosts: app_server
