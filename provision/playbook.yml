@@ -9,16 +9,17 @@
 - name: Download Application from Repo
   hosts: app_server
   tasks:
-    - debug: msg="{{ lookup('env','ARTIFACT_URL') }}"
     - get_url:
         url: "{{ lookup('env','ARTIFACT_URL') }}"
         dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
+    - stat:
+        path: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
+    - register: stat_result
 
 - name: Setup Spring Boot
   hosts: app_server
   become: yes
   become_user: root
-
   roles: 
     - { role: pellepelster.springboot-role,
         spring_boot_file_source_local: "/tmp/{{ lookup('env','APP_NAME') }}.jar",
