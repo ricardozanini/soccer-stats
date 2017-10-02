@@ -11,11 +11,13 @@
   tasks:
     - get_url:
         force: yes
+        # url: "{{ ARTIFACT_URL }}"
+        # dest: '/tmp/{{ APP_NAME }}.jar'
         url: "{{ lookup('env','ARTIFACT_URL') }}"
         dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
     - stat: 
+        # path: '/tmp/{{ APP_NAME }}.jar'
         path: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
-      register: jar_exists
 
 - name: Setup Spring Boot
   hosts: app_server
@@ -24,6 +26,9 @@
   roles: 
     - { role: pellepelster.springboot-role,
         spring_boot_file: "{{ lookup('env','APP_NAME') }}.jar",
+        # spring_boot_file: "{{ APP_NAME }}.jar",
         spring_boot_file_source: "/tmp/{{ lookup('env','APP_NAME') }}.jar",
         spring_boot_application_id: "{{ lookup('env','APP_NAME') }}"
+        # spring_boot_file_source: "/tmp/{{ APP_NAME }}.jar",
+        # spring_boot_application_id: '{{ APP_NAME }}'
     } 
