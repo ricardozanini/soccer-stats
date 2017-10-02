@@ -1,9 +1,11 @@
 - name: "check for spring boot application file"
-  stat: path={{ spring_boot_file_source }}
+  stat: 
+    path: {{ spring_boot_file_source }}
   register: spring_boot_file
   ignore_errors: True
 
-- fail: msg="local spring boot file '{{ spring_boot_file_source }}' not found"
+- fail:
+    msg: "local spring boot file '{{ spring_boot_file_source }}' not found"
   when: not spring_boot_file.stat.exists
 
 - name: "copy spring boot file"
