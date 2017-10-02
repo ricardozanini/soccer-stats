@@ -16,7 +16,6 @@ stage('Build') {
     }
 }
 
-/*
 stage('Unit Tests') {
     node {
         unstash 'source'
@@ -49,7 +48,12 @@ stage('Static Analysis') {
         }
     }
 }
-*/
+
+stage('Approval') {
+    timeout(time:3, unit:'DAYS') {
+        input 'Do I have your approval for deployment?'
+    }
+}
 
 stage('Artifact Upload') {
     node {
@@ -75,13 +79,6 @@ stage('Artifact Upload') {
     }
 }
 
-/*
-stage('Approval') {
-    timeout(time:3, unit:'DAYS') {
-        input 'Do I have your approval for deployment?'
-    }
-}
-*/
 
 stage('Deploy') {
     node {
