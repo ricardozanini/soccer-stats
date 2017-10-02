@@ -1,0 +1,43 @@
+---
+driver:
+  name: vagrant
+  synced_folders:
+    - [ "../example-application", "/opt/example-application", "create: true", "type: nfs"]
+
+provisioner:
+  name: shell
+  name: ansible_playbook
+  playbook: playbook_default.yml
+  roles_path: ../../../ansible-springboot-role
+  hosts: all
+  require_ansible_repo: false
+  require_ansible_omnibus: true
+  ansible_verbose: true
+  ansible_diff: true
+  ansible_extra_flags: <%= ENV['ANSIBLE_EXTRA_FLAGS'] %>
+
+platforms:
+- name: debian-7.9
+- name: debian-8.3  
+- name: fedora-22
+- name: fedora-23
+- name: opensuse-13.2
+  provisioner:
+    require_ansible_repo: true
+    require_ansible_omnibus: false
+- name: ubuntu-14.04
+- name: ubuntu-16.04
+  provisioner:
+    require_ansible_repo: true
+    require_ansible_omnibus: false
+
+suites:
+- name: default
+- name: ansible_20
+  provisioner:
+    ansible_version: 2.0
+  excludes:
+    - ubuntu-16.04
+- name: port_9090
+  provisioner:
+    playbook: playbook_port_9090.yml

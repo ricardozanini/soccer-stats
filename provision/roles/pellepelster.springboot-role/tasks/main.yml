@@ -1,0 +1,77 @@
+---
+- name: "check for java8 install tasks"
+  local_action: stat path="{{ role_path }}/tasks/java8_{{ ansible_distribution }}.yml"
+  become: no
+  register: java8_install_tasks_optional
+  ignore_errors: True
+
+- debug: msg="including {{ java8_install_tasks_optional.stat.path }}"
+  when: java8_install_tasks_optional.stat.exists
+
+- include: " {{ java8_install_tasks_optional.stat.path }}"
+  when: java8_install_tasks_optional.stat.exists
+
+- debug: msg="no java8 install tasks found for {{ ansible_distribution }}"
+  when: not java8_install_tasks_optional.stat.exists
+
+- name: "create spring-boot group"
+  group: name={{ spring_boot_username }}
+  
+- name: "create spring-boot user"
+  user: name={{ spring_boot_username }} group={{ spring_boot_username }} comment="user for application {{ spring_boot_application_id }}"
+
+- name: "create spring-boot configuration"
+  template: src=application.properties.j2 dest={{ spring_boot_user_dir }}/application-{{ spring_boot_profile}}.properties owner={{ spring_boot_username }} group={{ spring_boot_username }}
+
+- name: "create spring-boot initscript configuration"
+  template: src=initscript.conf.j2 dest={{ spring_boot_user_dir }}/{{ spring_boot_application_id}}.conf owner={{ spring_boot_username }} group={{ spring_boot_username }}
+
+- name: "check for spring boot file source inside vm"
+  include: "copy_springboot_application.yml"
+  when: not (spring_boot_file_source is undefined or spring_boot_file_source is none or spring_boot_file_source | trim == '')
+
+- name: "check for local spring boot file source"
+  include: "copy_springboot_application_local.yml"
+  when: not (spring_boot_file_source_local is undefined or spring_boot_file_source_local is none or spring_boot_file_source_local | trim == '')
+
+- name: "set spring boot file permissions"
+  file: path={{ spring_boot_user_dir }}/{{ spring_boot_file }} owner={{ spring_boot_username }} group={{ spring_boot_username }} mode=0755
+
+- name: "create log directory"
+  file: path={{ spring_boot_log_folder }} state=directory owner={{ spring_boot_username }} group={{ spring_boot_username }}
+
+- name: "create link for spring-boot service"
+  file: src={{ spring_boot_user_dir }}/{{ spring_boot_file }} dest=/etc/init.d/{{ spring_boot_application_id }} owner={{ spring_boot_username }} group={{ spring_boot_username }} state=link
+
+- name: "check for systemd dirs"
+  local_action: stat path="/usr/lib/systemd/system"
+  become: no
+  register: systemd_dirs_optional
+  ignore_errors: True
+
+- name: "get full qualified application executble path"
+  shell: readlink -f {{ spring_boot_user_dir }}/{{ spring_boot_file }}
+  register: shell_output
+
+- name: "set full qualified application executble path fact"
+  set_fact:
+    spring_boot_file_fq: "{{ shell_output.stdout }}"
+
+- name: "create spring-boot systemd unit configuration"
+  template: src=systemd_unit.conf.j2 dest=/usr/lib/systemd/system/{{ spring_boot_application_id}}.service
+  when: systemd_dirs_optional.stat.exists
+
+- name: "enable spring-boot service"
+  service: name={{ spring_boot_application_id }} enabled=yes
+
+- name: "start spring-boot service"
+  service: name={{ spring_boot_application_id }} state=restarted
+
+- name: "wait for application to come up"
+  uri:
+    url: "http://127.0.0.1:{{spring_boot_http_port}}/"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 10

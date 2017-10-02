@@ -1,0 +1,12 @@
+db.driver={{ spring_boot_jdbc_driver }}
+db.username={{ spring_boot_jdbc_user }}
+db.password={{ spring_boot_jdbc_password }}
+db.url=jdbc:postgresql://{{ spring_boot_jdbc_host }}/{{ spring_boot_jdbc_db }}
+hibernate.dialect={{ spring_boot_hibernate_dialect }}
+
+hibernate.format_sql={{ spring_boot_hibernate_format_sql }}
+hibernate.show_sql={{ spring_boot_hibernate_show_sql }}
+
+hibernate.hbm2ddl.auto={{ spring_boot_hibernate_hbm2ddl_auto }}
+
+server.port={{ spring_boot_http_port }}

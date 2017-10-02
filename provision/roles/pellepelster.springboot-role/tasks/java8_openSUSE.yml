@@ -1,0 +1,1 @@
+- zypper: name=java-1_8_0-openjdk-headless state=present

@@ -1,0 +1,14 @@
+- name: "add java8 repository"
+  template: src=java-8-debian.list.j2 dest=/etc/apt/sources.list.d/java-8-debian.list
+
+- name: "add key for apt"
+  apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=EEA14886
+
+- name: auto accept oracle jdk license
+  shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+
+- name: "install java 8"
+  apt: name=oracle-java8-installer update_cache=yes
+
+- name: "install java 8 defaults"
+  apt: name=oracle-java8-set-default

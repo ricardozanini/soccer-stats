@@ -1,0 +1,2 @@
+- name: "install java 8"
+  shell: yum --refresh --assumeyes install java-1.8.0-openjdk-headless

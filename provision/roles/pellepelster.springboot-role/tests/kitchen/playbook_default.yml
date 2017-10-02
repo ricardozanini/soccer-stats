@@ -1,0 +1,6 @@
+- name: wrapper for role testing
+  hosts: localhost
+  roles:
+    - { role: ansible-springboot-role, 
+        spring_boot_file_source_local: '/opt/example-application/build/libs/example-application.jar' 
+      }

@@ -1,0 +1,11 @@
+[Unit]
+Description={{ spring_boot_application_id }}
+After=syslog.target
+
+[Service]
+User={{ spring_boot_username }}
+ExecStart={{ spring_boot_file_fq }}
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

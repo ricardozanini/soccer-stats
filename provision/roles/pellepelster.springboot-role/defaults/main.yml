@@ -1,0 +1,29 @@
+spring_boot_application_id: springbootapplication
+
+spring_boot_file: "{{ spring_boot_application_id }}.jar"
+spring_boot_file_source: ""
+spring_boot_file_source_local: ""
+
+spring_boot_http_port: 8080
+spring_boot_profile: "default"
+
+spring_boot_jdbc_host: "localhost"
+spring_boot_jdbc_db: "{{ spring_boot_application_id }}"
+spring_boot_jdbc_user: "{{ spring_boot_application_id }}"
+spring_boot_jdbc_password: "{{ spring_boot_application_id }}"
+spring_boot_jdbc_driver: "org.postgresql.Driver"
+
+spring_boot_hibernate_dialect: "org.hibernate.dialect.PostgreSQL9Dialect"
+
+# validate: validate the schema, makes no changes to the database.
+# update: update the schema.
+# create: creates the schema, destroying previous data.
+# create-drop: drop the schema at the end of the session.
+spring_boot_hibernate_hbm2ddl_auto: "validate"
+
+spring_boot_hibernate_show_sql: "false"
+spring_boot_hibernate_format_sql: "{{ spring_boot_hibernate_show_sql }}"
+
+spring_boot_username: "{{ spring_boot_application_id }}"
+spring_boot_user_dir: "~{{ spring_boot_username }}"
+spring_boot_log_folder: "{{spring_boot_user_dir}}/log"

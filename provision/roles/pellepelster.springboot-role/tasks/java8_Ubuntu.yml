@@ -1,0 +1,19 @@
+- name: "install java 8"
+  apt: name=openjdk-8-jre-headless
+  when: ansible_lsb.major_release|int >= 16
+
+- name: "add java8 repository"
+  apt_repository: repo="ppa:webupd8team/java"
+  when: ansible_lsb.major_release|int < 16
+
+- name: auto accept oracle jdk license
+  shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+  when: ansible_lsb.major_release|int < 16
+
+- name: "install java 8"
+  apt: name=oracle-java8-installer
+  when: ansible_lsb.major_release|int < 16
+
+- name: "install java 8 defaults"
+  apt: name=oracle-java8-set-default
+  when: ansible_lsb.major_release|int < 16
