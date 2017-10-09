@@ -26,7 +26,7 @@ stage('Build') {
 if(FULL_BUILD) {
     stage('Unit Tests') {   
         node {
-            unstash 'source'
+            //unstash 'source'
             withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
                 sh "mvn -B clean test"
                 stash name: "unit_tests", includes: "target/surefire-reports/**"
@@ -38,7 +38,7 @@ if(FULL_BUILD) {
 if(FULL_BUILD) {
     stage('Integration Tests') {
         node {
-            unstash 'source'
+            //unstash 'source'
             withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
                 sh "mvn -B clean verify -Dsurefire.skip=true"
                 stash name: 'it_tests', includes: 'target/failsafe-reports/**'
@@ -50,7 +50,7 @@ if(FULL_BUILD) {
 if(FULL_BUILD) {
     stage('Static Analysis') {
         node {
-            unstash 'source'
+            //unstash 'source'
             withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
                 withSonarQubeEnv('sonar'){
                     unstash 'it_tests'
