@@ -107,8 +107,7 @@ stage('Deploy') {
         def version = pom.version
 
         if(!FULL_BUILD) { //takes the last version from repo
-            version = sh script: 
-                            "xmllint --xpath \"string(//latest)\" <(curl -s http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/maven-metadata.xml)",
+            version = sh script: "xmllint --xpath \"string(//latest)\" <(curl -s http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/maven-metadata.xml)",
                          returnStdout: true
         }
         def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/${version}/${pom.artifactId}-${version}.jar"
