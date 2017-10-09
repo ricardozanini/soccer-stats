@@ -1,5 +1,8 @@
 #!groovy​
 
+// FULL_BUILD -> true/false build parameter to define if we need to run the entire stack for lab purpose only
+// HOST_PROVISION -> server to run ansible based on provision/inventory.ini
+
 final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
 final NEXUS_URL = 'nexus.local:8081'
 
@@ -16,42 +19,50 @@ stage('Build') {
     }
 }
 
-stage('Unit Tests') {
-    node {
-        unstash 'source'
-        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            sh "mvn -B clean test"
-            stash name: "unit_tests", includes: "target/surefire-reports/**"
-        }
-    }
-}
-
-stage('Integration Tests') {
-    node {
-        unstash 'source'
-        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            sh "mvn -B clean verify -Dsurefire.skip=true"
-            stash name: 'it_tests', includes: 'target/failsafe-reports/**'
-        }
-    }
-}
-
-stage('Static Analysis') {
-    node {
-        unstash 'source'
-        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            withSonarQubeEnv('sonar'){
-                unstash 'it_tests'
-                unstash 'unit_tests'
-                sh 'mvn sonar:sonar -DskipTests'
+if($FULL_BUILD) {
+    stage('Unit Tests') {   
+        node {
+            unstash 'source'
+            withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+                sh "mvn -B clean test"
+                stash name: "unit_tests", includes: "target/surefire-reports/**"
             }
         }
     }
 }
 
-stage('Approval') {
-    timeout(time:3, unit:'DAYS') {
-        input 'Do I have your approval for deployment?'
+if($FULL_BUILD) {
+    stage('Integration Tests') {
+        node {
+            unstash 'source'
+            withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+                sh "mvn -B clean verify -Dsurefire.skip=true"
+                stash name: 'it_tests', includes: 'target/failsafe-reports/**'
+            }
+        }
+    }
+}
+
+if($FULL_BUILD) {
+    stage('Static Analysis') {
+        node {
+            unstash 'source'
+            withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+                withSonarQubeEnv('sonar'){
+                    unstash 'it_tests'
+                    unstash 'unit_tests'
+                    sh 'mvn sonar:sonar -DskipTests'
+                }
+            }
+        }
+    }
+}
+
+if($FULL_BUILD) {
+    stage('Approval') {
+        timeout(time:3, unit:'DAYS') {
+            input 'Do I have your approval for deployment?'
+        }
     }
 }
 
@@ -94,8 +105,9 @@ stage('Deploy') {
             sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
 
             ansiblePlaybook colorized: true, 
-            credentialsId: 'ssh-jenkins', 
-            installation: 'ansible', 
+            credentialsId: 'ssh-jenkins',
+            limit: "${HOST_PROVISION}",
+            installation: 'ansible',
             inventory: 'provision/inventory.ini', 
             playbook: 'provision/playbook.yml', 
             sudo: true,
