@@ -1,7 +1,9 @@
 #!groovy​
 
 // FULL_BUILD -> true/false build parameter to define if we need to run the entire stack for lab purpose only
+final FULL_BUILD = params.FULL_BUILD
 // HOST_PROVISION -> server to run ansible based on provision/inventory.ini
+final HOST_PROVISION = params.HOST_PROVISION
 
 final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
 final NEXUS_URL = 'nexus.local:8081'
@@ -19,7 +21,7 @@ stage('Build') {
     }
 }
 
-if($FULL_BUILD) {
+if(FULL_BUILD) {
     stage('Unit Tests') {   
         node {
             unstash 'source'
@@ -31,7 +33,7 @@ if($FULL_BUILD) {
     }
 }
 
-if($FULL_BUILD) {
+if(FULL_BUILD) {
     stage('Integration Tests') {
         node {
             unstash 'source'
@@ -43,7 +45,7 @@ if($FULL_BUILD) {
     }
 }
 
-if($FULL_BUILD) {
+if(FULL_BUILD) {
     stage('Static Analysis') {
         node {
             unstash 'source'
@@ -58,7 +60,7 @@ if($FULL_BUILD) {
     }
 }
 
-if($FULL_BUILD) {
+if(ULL_BUILD) {
     stage('Approval') {
         timeout(time:3, unit:'DAYS') {
             input 'Do I have your approval for deployment?'
