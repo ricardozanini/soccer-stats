@@ -12,11 +12,13 @@ stage('Build') {
     node {
         git GIT_URL
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-            def pom = readMavenPom file: 'pom.xml'
-            sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
-            sh "mvn -B -Dmaven.test.skip=true clean package"
-            stash name: "artifact", includes: "target/soccer-stats-*.jar"
-            stash name: "source", includes: "**", excludes: "target/"
+            if(FULL_BUILD) {
+                def pom = readMavenPom file: 'pom.xml'
+                sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
+                sh "mvn -B -Dmaven.test.skip=true clean package"
+                stash name: "artifact", includes: "target/soccer-stats-*.jar"
+                //stash name: "source", includes: "**", excludes: "target/"
+            }
         }
     }
 }
@@ -68,27 +70,30 @@ if(FULL_BUILD) {
     }
 }
 
-stage('Artifact Upload') {
-    node {
-        unstash 'artifact'
 
-        def pom = readMavenPom file: 'pom.xml'
-        def file = "${pom.artifactId}-${pom.version}"
-        def jar = "target/${file}.jar"
+if(FULL_BUILD) {
+    stage('Artifact Upload') {
+        node {
+            unstash 'artifact'
 
-        sh "cp pom.xml ${file}.pom"
+            def pom = readMavenPom file: 'pom.xml'
+            def file = "${pom.artifactId}-${pom.version}"
+            def jar = "target/${file}.jar"
 
-        nexusArtifactUploader artifacts: [
-                [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
-                [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
-            ], 
-            credentialsId: 'nexus', 
-            groupId: "${pom.groupId}", 
-            nexusUrl: NEXUS_URL, 
-            nexusVersion: 'nexus3', 
-            protocol: 'http', 
-            repository: 'ansible-meetup', 
-            version: "${pom.version}"        
+            sh "cp pom.xml ${file}.pom"
+
+            nexusArtifactUploader artifacts: [
+                    [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
+                    [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
+                ], 
+                credentialsId: 'nexus', 
+                groupId: "${pom.groupId}", 
+                nexusUrl: NEXUS_URL, 
+                nexusVersion: 'nexus3', 
+                protocol: 'http', 
+                repository: 'ansible-meetup', 
+                version: "${pom.version}"        
+        }
     }
 }
 
@@ -96,8 +101,14 @@ stage('Artifact Upload') {
 stage('Deploy') {
     node {
         def pom = readMavenPom file: "pom.xml"
+        def version = pom.version
+
+        if(!FULL_BUILD) {
+            version = "${version}-${LAST_SUCCESS_NUMBER}"
+        }
+
         def repoPath =  "${pom.groupId}".replace(".", "/") + 
-                        "/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.jar"
+                        "/${pom.artifactId}/${version}/${pom.artifactId}-${version}.jar"
         def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}"
 
         withEnv(["ARTIFACT_URL=${artifactUrl}", "APP_NAME=${pom.artifactId}"]) {
