@@ -101,11 +101,6 @@ if(FULL_BUILD) {
 stage('Deploy') {
     node {
         def pom = readMavenPom file: "pom.xml"
-       
-        /*
-        def repoPath =  "${pom.groupId}".replace(".", "/") + 
-                        "/${pom.artifactId}/${version}/${pom.artifactId}-${version}.jar"
-        */
         def repoPath =  "${pom.groupId}".replace(".", "/") + 
                         "/${pom.artifactId}"
 
@@ -113,7 +108,7 @@ stage('Deploy') {
 
         if(!FULL_BUILD) { //takes the last version from repo
             version = sh script: 
-                            "xmllint --xpath 'string(//latest)' <(curl -s http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/maven-metadata.xml)",
+                            "xmllint --xpath \"string(//latest)\" <(curl -s http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/maven-metadata.xml)",
                          returnStdout: true
         }
         def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/${version}/${pom.artifactId}-${version}.jar"
