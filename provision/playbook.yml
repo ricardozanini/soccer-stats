@@ -1,13 +1,13 @@
 ---
 - name: Install Java
-  hosts: "{{ lookup('env','APP_HOST_GROUP') }}"
+  hosts: app_server
   become: yes
   become_user: root
   roles:
     - geerlingguy.java
 
 - name: Download Application from Repo
-  hosts: "{{ lookup('env','APP_HOST_GROUP') }}"
+  hosts: app_server
   tasks:
     - get_url:
         force: yes
@@ -20,7 +20,7 @@
         path: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
 
 - name: Setup Spring Boot
-  hosts: "{{ lookup('env','APP_HOST_GROUP') }}"
+  hosts: app_server
   become: yes
   become_user: root
   roles: 
