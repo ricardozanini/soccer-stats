@@ -11,12 +11,9 @@
   tasks:
     - get_url:
         force: yes
-        # url: "{{ ARTIFACT_URL }}"
-        # dest: '/tmp/{{ APP_NAME }}.jar'
         url: "{{ lookup('env','ARTIFACT_URL') }}"
         dest: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
     - stat: 
-        # path: '/tmp/{{ APP_NAME }}.jar'
         path: "/tmp/{{ lookup('env','APP_NAME') }}.jar"
 
 - name: Setup Spring Boot
