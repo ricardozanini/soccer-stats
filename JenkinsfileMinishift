@@ -2,31 +2,45 @@
 
 
 final NEXUS_REPO = 'alm-demo'
-node('maven') {
-    stage('Build') {
-        //git GIT_URL
-        checkout scm
-        def pom = readMavenPom file: 'pom.xml'
-        sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
-        sh "mvn -B -Dmaven.test.skip=true clean package"
-        stash name: "artifact", includes: "target/soccer-stats-*.jar"
-    }
 
-    stage('Unit Tests') {   
-        sh "mvn -B clean test"
-        stash name: "unit_tests", includes: "target/surefire-reports/**"
+stage('Build') {
+    node {
+        checkout scm 
+        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            def pom = readMavenPom file: 'pom.xml'
+            sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
+            sh "mvn -B -Dmaven.test.skip=true clean package"
+            stash name: "artifact", includes: "target/soccer-stats-*.jar"
+        }
     }
+}
 
-    stage('Integration Tests') {
-        sh "mvn -B clean verify -Dsurefire.skip=true"
-        stash name: 'it_tests', includes: 'target/failsafe-reports/**'
+stage('Unit Tests') {   
+    node {
+        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            sh "mvn -B clean test"
+            stash name: "unit_tests", includes: "target/surefire-reports/**"
+        }
     }
+}
 
-    stage('Static Analysis') {
-        withSonarQubeEnv('sonar'){
-            unstash 'it_tests'
-            unstash 'unit_tests'
-            sh 'mvn sonar:sonar -DskipTests'
+stage('Integration Tests') {
+    node {
+        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            sh "mvn -B clean verify -Dsurefire.skip=true"
+            stash name: 'it_tests', includes: 'target/failsafe-reports/**'
+        }
+    }
+}
+
+stage('Static Analysis') {
+    node {
+        withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+            withSonarQubeEnv('sonar'){
+                unstash 'it_tests'
+                unstash 'unit_tests'
+                sh 'mvn sonar:sonar -DskipTests'
+            }
         }
     }
 }
