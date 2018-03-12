@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import br.com.meetup.ansible.domain.Match;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class MatchControllerIT {
 
     @Autowired
