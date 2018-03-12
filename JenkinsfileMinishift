@@ -15,7 +15,7 @@ stage('Build') {
     }
 }
 
-/*
+
 stage('Unit Tests') {   
     node {
         withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
@@ -24,7 +24,7 @@ stage('Unit Tests') {
         }
     }
 }
-*/
+
 
 stage('Integration Tests') {
     node {
