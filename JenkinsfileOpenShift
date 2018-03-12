@@ -3,9 +3,8 @@
 
 //final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
 final NEXUS_REPO = 'alm-demo'
-
-stage('Build') {
-    node {
+node('Maven') {
+    stage('Build') {
         //git GIT_URL
         checkout scm
         def pom = readMavenPom file: 'pom.xml'
@@ -13,25 +12,18 @@ stage('Build') {
         sh "mvn -B -Dmaven.test.skip=true clean package"
         stash name: "artifact", includes: "target/soccer-stats-*.jar"
     }
-}
 
-
-stage('Unit Tests') {   
-    node {
+    stage('Unit Tests') {   
         sh "mvn -B clean test"
         stash name: "unit_tests", includes: "target/surefire-reports/**"
     }
-}
 
-stage('Integration Tests') {
-    node {
+    stage('Integration Tests') {
         sh "mvn -B clean verify -Dsurefire.skip=true"
         stash name: 'it_tests', includes: 'target/failsafe-reports/**'
     }
-}
 
-stage('Static Analysis') {
-    node {
+    stage('Static Analysis') {
         withSonarQubeEnv('sonar'){
             unstash 'it_tests'
             unstash 'unit_tests'
