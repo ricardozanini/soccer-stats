@@ -3,7 +3,7 @@
 
 //final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
 final NEXUS_REPO = 'alm-demo'
-node('Maven') {
+node('maven') {
     stage('Build') {
         //git GIT_URL
         checkout scm
