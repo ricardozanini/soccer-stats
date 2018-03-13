@@ -108,4 +108,36 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+
+		<profile>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<id>openshift</id>
+			<build>
+				<plugins>
+					<!-- Nexus -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<extensions>true</extensions>
+						<configuration>
+							<!-- The Base URL of Nexus instance where we want to stage -->
+							<nexusUrl>${NEXUS_URL}</nexusUrl>
+							<!-- The server "id" element from settings to use authentication from -->
+							<serverId>ocp-nexus</serverId>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

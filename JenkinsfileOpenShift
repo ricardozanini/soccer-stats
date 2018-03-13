@@ -13,12 +13,12 @@ node('maven') {
     }
 
     stage('Unit Tests') {   
-        sh "mvn -B clean test"
+        sh "mvn -B test"
         stash name: "unit_tests", includes: "target/surefire-reports/**"
     }
 
     stage('Integration Tests') {
-        sh "mvn -B clean verify -Dsurefire.skip=true"
+        sh "mvn -B verify -Dsurefire.skip=true"
         stash name: 'it_tests', includes: 'target/failsafe-reports/**'
     }
 
@@ -38,7 +38,9 @@ node('maven') {
         def jar = "target/${file}.jar"
 
         sh "cp pom.xml ${file}.pom"
+        sh "mvn -B -Popenshift clean deploy -Dmaven.test.skip=true"
 
+    /*
         nexusArtifactUploader artifacts: [
                 [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
                 [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
@@ -50,8 +52,9 @@ node('maven') {
             protocol: 'http', 
             repository: NEXUS_REPO, 
             version: "${pom.version}"        
+            */
     }
-    
+
     stage('Build Image') {
         unstash name:"artifact"
         def pom = readMavenPom file: "pom.xml"
