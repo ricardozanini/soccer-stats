@@ -12,7 +12,7 @@ public class IndexController {
 
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public String index(Map<String, Object> model) {
         model.put("time", new Date());
         return "index";
