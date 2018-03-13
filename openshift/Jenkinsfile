@@ -1,7 +1,7 @@
 #!groovy​
 
 
-final NEXUS_REPO = 'alm-demo'
+//final NEXUS_REPO = 'alm-demo'
 node('maven') {
     stage('Build') {
         checkout scm
