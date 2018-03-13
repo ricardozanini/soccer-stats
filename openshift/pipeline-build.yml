@@ -17,7 +17,7 @@ items:
     strategy:
       type: JenkinsPipeline
       jenkinsPipelineStrategy:
-        jenkinsfilePath: Jenkinsfile
+        jenkinsfilePath: openshift/Jenkinsfile
     triggers:
     - generic:
         secret: FiArdDBH

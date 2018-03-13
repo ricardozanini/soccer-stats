@@ -4,7 +4,6 @@
 final NEXUS_REPO = 'alm-demo'
 node('maven') {
     stage('Build') {
-        //git GIT_URL
         checkout scm
         def pom = readMavenPom file: 'pom.xml'
         sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
@@ -29,7 +28,7 @@ node('maven') {
             sh 'mvn sonar:sonar -DskipTests'
         }
     }
-
+/*
     stage('Artifact Upload') {
         unstash 'artifact'
 
@@ -40,6 +39,7 @@ node('maven') {
         sh "cp pom.xml ${file}.pom"
         sh "mvn -B -Popenshift clean deploy -Dmaven.test.skip=true"
 
+*/
     /*
         nexusArtifactUploader artifacts: [
                 [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
@@ -53,7 +53,7 @@ node('maven') {
             repository: NEXUS_REPO, 
             version: "${pom.version}"        
             */
-    }
+  //  }
 
     stage('Build Image') {
         unstash name:"artifact"
