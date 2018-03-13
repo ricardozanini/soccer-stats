@@ -62,7 +62,7 @@ node('maven') {
                         "/${pom.artifactId}"
 
         def version = pom.version
-        sh "oc start-build soccer-stats --from-file=target/${pom.artifactId}-${version}.jar --follow"
+        sh "oc start-build soccer-stats --from-file=target/${pom.artifactId}-${version}.war --follow"
     }
 }
 
