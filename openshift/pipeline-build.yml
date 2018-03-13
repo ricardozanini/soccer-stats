@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      pipeline.alpha.openshift.io/uses: '[{"name": "soccer-stats", "namespace": "", "kind": "DeploymentConfig"}]'
+    name: soccer-stats-pipeline
+  spec:
+    source:
+      git:
+        ref: master
+        uri: https://github.com/ricardozanini/soccer-stats.git
+      type: Git
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+    triggers:
+    - generic:
+        secret: FiArdDBH
+type: Generic
+# ref.: https://github.com/siamaksade/cart-service/blob/pipeline/openshift/cart-pipeline.yaml
