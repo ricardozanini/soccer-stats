@@ -78,32 +78,21 @@ stage('Artifact Upload') {
     }
 }
 
-stage('Deploy') {
+stage('Build Image') {
     node {
+        unstash name:"artifact"
         def pom = readMavenPom file: "pom.xml"
         def repoPath =  "${pom.groupId}".replace(".", "/") + 
                         "/${pom.artifactId}"
 
         def version = pom.version
+        sh "oc start-build soccer-stats --from-file=target/${pom.artifactId}-${version}.jar --follow"
+    }
+}
 
-        def artifactUrl = "http://${NEXUS_URL}/repository/${NEXUS_REPO}/${repoPath}/${version}/${pom.artifactId}-${version}.jar"
-
-        withEnv(["ARTIFACT_URL=${artifactUrl}", "APP_NAME=${pom.artifactId}"]) {
-            echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
-
-            // install galaxy roles
-            /*
-            sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
-
-            ansiblePlaybook colorized: true, 
-            credentialsId: 'ssh-jenkins',
-            limit: "${HOST_PROVISION}",
-            installation: 'ansible',
-            inventory: 'provision/inventory.ini', 
-            playbook: 'provision/playbook.yml', 
-            sudo: true,
-            sudoUser: 'jenkins'
-            */
-        }
+stage('Deploy') {
+    node {
+        openshiftDeploy depCfg: 'soccer-stats'
+        openshiftVerifyDeployment depCfg: 'soccer-stats', replicaCount: 1, verifyReplicaCount: true
     }
 }
