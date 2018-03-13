@@ -68,7 +68,7 @@ node('maven') {
 
 stage('Deploy') {
     node {
-        openshiftDeploy depCfg: 'soccer-stats'
+        openshiftDeploy depCfg: 'soccer-stats', waitTime: '10', waitUnit: 'min'
         openshiftVerifyDeployment depCfg: 'soccer-stats', replicaCount: 1, verifyReplicaCount: true
     }
 }
