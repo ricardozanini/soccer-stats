@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
   datasource:
     url: jdbc:h2:mem:testdb;IGNORECASE=TRUE;
   h2:
