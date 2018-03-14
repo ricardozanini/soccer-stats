@@ -2,10 +2,12 @@
 
 
 //final NEXUS_REPO = 'alm-demo'
+def pom = null
+
 node('maven') {
     stage('Build') {
         checkout scm
-        def pom = readMavenPom file: 'pom.xml'
+        pom = readMavenPom file: 'pom.xml'
         sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
         sh "mvn -B -Dmaven.test.skip=true clean package"
         stash name: "artifact", includes: "target/*.war"
@@ -57,7 +59,7 @@ node('maven') {
 
     stage('Build Image') {
         unstash name:"artifact"
-        def pom = readMavenPom file: "pom.xml"
+        pom = readMavenPom file: "pom.xml"
         def repoPath =  "${pom.groupId}".replace(".", "/") + 
                         "/${pom.artifactId}"
 
@@ -75,7 +77,6 @@ stage('Approval') {
 
 stage('Deploy') {
     node {
-        def pom = readMavenPom file: "pom.xml"
         openshiftDeploy depCfg: 'soccer-stats', waitTime: '10', waitUnit: 'min'
         openshiftVerifyDeployment depCfg: 'soccer-stats', replicaCount: 1, verifyReplicaCount: true
         slackSend color: 'good', message: "A new version (${pom.version}) of soccer-stats app is ready to use!"
