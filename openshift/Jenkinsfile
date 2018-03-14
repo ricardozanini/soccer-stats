@@ -15,12 +15,12 @@ node('maven') {
 
     stage('Unit Tests') {   
         sh "mvn -B test"
-        stash name: "unit_tests", includes: "target/surefire-reports/**"
+        stash name: "unit_tests", includes: "target/surefire-reports/**, target/jacoco*.exec"
     }
 
     stage('Integration Tests') {
         sh "mvn -B verify -Dsurefire.skip=true"
-        stash name: 'it_tests', includes: 'target/failsafe-reports/**'
+        stash name: 'it_tests', includes: 'target/failsafe-reports/**, target/jacoco*.exec'
     }
 
     stage('Static Analysis') {
