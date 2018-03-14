@@ -67,9 +67,17 @@ node('maven') {
     }
 }
 
+stage('Approval') {
+    timeout(time:3, unit:'DAYS') {
+        input 'Do I have your approval for deployment?'
+    }
+}
+
 stage('Deploy') {
     node {
+        def pom = readMavenPom file: "pom.xml"
         openshiftDeploy depCfg: 'soccer-stats', waitTime: '10', waitUnit: 'min'
         openshiftVerifyDeployment depCfg: 'soccer-stats', replicaCount: 1, verifyReplicaCount: true
+        slackSend color: 'good', message: "A new version (${pom.version}) of soccer-stats app is ready to use!"
     }
 }
