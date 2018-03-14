@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<jacoco.version>0.7.9</jacoco.version>
+		<sonar.junit.reportPaths>target/surefire-reports,target/failsafe-reports</sonar.junit.reportPaths>
 	</properties>
 
 	<dependencies>
