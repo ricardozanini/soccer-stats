@@ -16,7 +16,7 @@ stage('Build') {
                 def pom = readMavenPom file: 'pom.xml'
                 sh "mvn -B versions:set -DnewVersion=${pom.version}-${BUILD_NUMBER}"
                 sh "mvn -B -Dmaven.test.skip=true clean package"
-                stash name: "artifact", includes: "target/soccer-stats-*.jar"
+                stash name: "artifact", includes: "target/soccer-stats-*.war"
             }
         }
     }
@@ -74,12 +74,12 @@ if(FULL_BUILD) {
 
             def pom = readMavenPom file: 'pom.xml'
             def file = "${pom.artifactId}-${pom.version}"
-            def jar = "target/${file}.jar"
+            def jar = "target/${file}.war"
 
             sh "cp pom.xml ${file}.pom"
 
             nexusArtifactUploader artifacts: [
-                    [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.jar", type: 'jar'],
+                    [artifactId: "${pom.artifactId}", classifier: '', file: "target/${file}.war", type: 'war'],
                     [artifactId: "${pom.artifactId}", classifier: '', file: "${file}.pom", type: 'pom']
                 ], 
                 credentialsId: 'nexus', 
@@ -107,7 +107,7 @@ stage('Deploy') {
             version = sh script: 'xmllint metadata.xml --xpath "string(//latest)"',
                          returnStdout: true
         }
-        def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/${version}/${pom.artifactId}-${version}.jar"
+        def artifactUrl = "http://${NEXUS_URL}/repository/ansible-meetup/${repoPath}/${version}/${pom.artifactId}-${version}.war"
 
         withEnv(["ARTIFACT_URL=${artifactUrl}", "APP_NAME=${pom.artifactId}"]) {
             echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
