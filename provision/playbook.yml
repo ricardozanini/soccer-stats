@@ -1,10 +1,10 @@
 ---
 - name: Install Roles from Galaxy
   hosts: localhost
-  become: yes
+  connection: local
   tasks:
-    - local_action:
-        command ansible-galaxy install -r requirements.yml --roles-path roles
+    - name: installing ansible-galaxy roles
+      command: ansible-galaxy install -r requirements.yml --roles-path roles
 
 - name: Install Java
   hosts: app_server
