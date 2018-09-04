@@ -121,7 +121,7 @@ stage('Deploy') {
                 inventory: 'Soccer Stats Inventory',
                 removeColor: false,
                 verbose: true,
-                credential: '',
+                credential: 'jenkins-key',
                 extraVars: '''---
 ARTIFACT_URL:  "${env.ARTIFACT_URL}"
 APP_NAME: "${env.APP_NAME}"'''
