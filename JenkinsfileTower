@@ -116,12 +116,12 @@ stage('Deploy') {
             ansibleTower(
                 towerServer: 'tower',
                 templateType: 'job',
-                jobTemplate: 'Deploy Soccer Stats',
+                jobTemplate: '7',
                 importTowerLogs: true,
-                inventory: 'Soccer Stats Inventory',
+                inventory: '2',
                 removeColor: false,
                 verbose: true,
-                credential: 'jenkins-key',
+                credential: '2',
                 extraVars: '''---
 ARTIFACT_URL:  "${env.ARTIFACT_URL}"
 APP_NAME: "${env.APP_NAME}"'''
