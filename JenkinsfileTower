@@ -110,6 +110,7 @@ stage('Deploy') {
         }
         def artifactUrl = "http://${NEXUS_URL}/repository/${NEXUS_REPO}/${repoPath}/${version}/${pom.artifactId}-${version}.war"
 
+        //you must specify your own ids
         ansibleTower(
                 towerServer: 'tower',
                 templateType: 'job',
@@ -118,10 +119,10 @@ stage('Deploy') {
                 inventory: '2',
                 removeColor: false,
                 verbose: true,
-                credential: '2',
-                extraVars: '''---
+                credential: '2',  
+                extraVars: """---
 ARTIFACT_URL:  "${artifactUrl}"
-APP_NAME: "${pom.artifactId}"'''
+APP_NAME: "${pom.artifactId}""""
         )
     }
 }
