@@ -122,7 +122,8 @@ stage('Deploy') {
                 credential: '2',  
                 extraVars: """---
 ARTIFACT_URL:  "${artifactUrl}"
-APP_NAME: "${pom.artifactId}""""
+APP_NAME: "${pom.artifactId}" 
+"""
         )
     }
 }
