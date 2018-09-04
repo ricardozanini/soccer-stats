@@ -1,6 +1,8 @@
 ---
 - name: Install Roles from Galaxy
   hosts: localhost
+  become: yes
+  become_user: root
   tasks:
     - local_action:
         command ansible-galaxy install -r requirements.yml --roles-path roles

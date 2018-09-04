@@ -110,10 +110,7 @@ stage('Deploy') {
         }
         def artifactUrl = "http://${NEXUS_URL}/repository/${NEXUS_REPO}/${repoPath}/${version}/${pom.artifactId}-${version}.war"
 
-        withEnv(["ARTIFACT_URL=${artifactUrl}", "APP_NAME=${pom.artifactId}"]) {
-            echo "The URL is ${env.ARTIFACT_URL} and the app name is ${env.APP_NAME}"
-
-            ansibleTower(
+        ansibleTower(
                 towerServer: 'tower',
                 templateType: 'job',
                 jobTemplate: '7',
@@ -123,9 +120,8 @@ stage('Deploy') {
                 verbose: true,
                 credential: '2',
                 extraVars: '''---
-ARTIFACT_URL:  "${env.ARTIFACT_URL}"
-APP_NAME: "${env.APP_NAME}"'''
-            )
-        }
+ARTIFACT_URL:  "${artifactUrl}"
+APP_NAME: "${pom.artifactId}"'''
+        )
     }
 }
