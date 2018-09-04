@@ -2,6 +2,8 @@
 
 // FULL_BUILD -> true/false build parameter to define if we need to run the entire stack for lab purpose only
 final FULL_BUILD = params.FULL_BUILD
+// HOST_PROVISION -> server to run ansible based on provision/inventory.ini
+final HOST_PROVISION = params.HOST_PROVISION
 
 final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
 final NEXUS_URL = 'nexus.local:8081'
@@ -120,6 +122,7 @@ stage('Deploy') {
                 removeColor: false,
                 verbose: true,
                 credential: '2',  
+                limit: "${HOST_PROVISION}",
                 extraVars: """---
 ARTIFACT_URL:  "${artifactUrl}"
 APP_NAME: "${pom.artifactId}" 
