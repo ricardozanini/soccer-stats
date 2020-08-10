@@ -2,7 +2,7 @@
 - name: Install Roles from Galaxy
   hosts: localhost
   connection: local
-  become_user: "{{ local_user | default('awx') }}"
+  become_user: "{{ local_user | default('root') }}"
   become: yes
   tasks:
     - name: installing ansible-galaxy roles
@@ -20,6 +20,9 @@
   tasks:
     - get_url:
         force: yes
+        force_basic_auth: true
+        url_password: "admin"
+        url_username: "admin"
         url: "{{ ARTIFACT_URL }}"
         dest: "/tmp/{{ APP_NAME }}.war"
     - stat: 

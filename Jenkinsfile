@@ -1,12 +1,10 @@
 #!groovy​
 
 // FULL_BUILD -> true/false build parameter to define if we need to run the entire stack for lab purpose only
-final FULL_BUILD = params.FULL_BUILD
-// HOST_PROVISION -> server to run ansible based on provision/inventory.ini
-final HOST_PROVISION = params.HOST_PROVISION
+final FULL_BUILD = true
 
-final GIT_URL = 'https://github.com/ricardozanini/soccer-stats.git'
-final NEXUS_URL = 'nexus.local:8081'
+final GIT_URL = 'https://github.com/ykumar2002/soccer-stats.git'
+final NEXUS_URL = '18.191.241.200:8081'
 
 stage('Build') {
     node {
@@ -44,19 +42,6 @@ if(FULL_BUILD) {
     }
 }
 
-if(FULL_BUILD) {
-    stage('Static Analysis') {
-        node {
-            withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
-                withSonarQubeEnv('sonar'){
-                    unstash 'it_tests'
-                    unstash 'unit_tests'
-                    sh 'mvn sonar:sonar -DskipTests'
-                }
-            }
-        }
-    }
-}
 
 if(FULL_BUILD) {
     stage('Approval') {
@@ -87,7 +72,7 @@ if(FULL_BUILD) {
                 nexusUrl: NEXUS_URL, 
                 nexusVersion: 'nexus3', 
                 protocol: 'http', 
-                repository: 'ansible-meetup', 
+                repository: 'ansible-meetup/', 
                 version: "${pom.version}"        
         }
     }
@@ -121,8 +106,7 @@ stage('Deploy') {
             installation: 'ansible',
             inventory: 'provision/inventory.ini', 
             playbook: 'provision/playbook.yml', 
-            sudo: true,
-            sudoUser: 'jenkins'
-        }
+	    extraVars: [ARTIFACT_URL: "${env.ARTIFACT_URL}", APP_NAME: "${env.APP_NAME}"]        
+	}
     }
 }
