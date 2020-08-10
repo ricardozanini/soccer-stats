@@ -21,6 +21,8 @@
     - get_url:
         force: yes
         force_basic_auth: true
+        url_password: "admin"
+        url_username: "admin"
         url: "{{ ARTIFACT_URL }}"
         dest: "/tmp/{{ APP_NAME }}.war"
     - stat: 
