@@ -3,7 +3,7 @@
 // FULL_BUILD -> true/false build parameter to define if we need to run the entire stack for lab purpose only
 final FULL_BUILD = true
 
-final GIT_URL = 'https://github.com/kuntalkumarbasu/soccer-stats.git'
+final GIT_URL = 'https://github.com/ykumar2002/soccer-stats.git'
 final NEXUS_URL = '18.218.165.14:8081'
 
 stage('Build') {
