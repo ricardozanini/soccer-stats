@@ -4,7 +4,7 @@
 final FULL_BUILD = true
 
 final GIT_URL = 'https://github.com/ykumar2002/soccer-stats.git'
-final NEXUS_URL = '18.191.241.200:8081'
+final NEXUS_URL = '18.218.165.14:8081'
 
 stage('Build') {
     node {
@@ -42,6 +42,19 @@ if(FULL_BUILD) {
     }
 }
 
+if(FULL_BUILD) {
+    stage('Static Analysis') {
+        node {
+            withEnv(["PATH+MAVEN=${tool 'm3'}/bin"]) {
+                withSonarQubeEnv('sonar'){
+                    unstash 'it_tests'
+                    unstash 'unit_tests'
+                    sh 'mvn sonar:sonar -DskipTests'
+                }
+            }
+        }
+    }
+}
 
 if(FULL_BUILD) {
     stage('Approval') {
@@ -99,14 +112,13 @@ stage('Deploy') {
 
             // install galaxy roles
             sh "ansible-galaxy install -vvv -r provision/requirements.yml -p provision/roles/"        
-
+            //sh "ansible-playbook provision/playbook.yml -i provision/inventory.ini -e ARTIFACT_URL=http://18.218.165.14:8081/repository/ansible-meetup/br/com/meetup/ansible/soccer-stats/0.0.2-5/soccer-stats-0.0.2-5.war -e APP_NAME=soccer-stats -vvv"
             ansiblePlaybook colorized: true, 
             credentialsId: 'ssh-jenkins',
-            limit: "${HOST_PROVISION}",
             installation: 'ansible',
             inventory: 'provision/inventory.ini', 
             playbook: 'provision/playbook.yml', 
-	    extraVars: [ARTIFACT_URL: "${env.ARTIFACT_URL}", APP_NAME: "${env.APP_NAME}"]        
-	}
+           extraVars: [ARTIFACT_URL: "${env.ARTIFACT_URL}", APP_NAME: "${env.APP_NAME}"]        
+    }
     }
 }

@@ -2,7 +2,7 @@
 - name: Install Roles from Galaxy
   hosts: localhost
   connection: local
-  become_user: "{{ local_user | default('root') }}"
+  become_user: "{{ local_user | default('jenkins') }}"
   become: yes
   tasks:
     - name: installing ansible-galaxy roles
